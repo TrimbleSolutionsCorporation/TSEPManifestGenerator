@@ -1,0 +1,50 @@
+﻿<Window x:Name="ManifestGeneratorWindow" x:Class="Manifest_Generator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Manifest Generator" Height="450" Width="800" MinWidth="800" MinHeight="450">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="35*" MinWidth="330"/>
+            <ColumnDefinition Width="31*" MinWidth="310"/>
+        </Grid.ColumnDefinitions>
+
+        <Button x:Name="btnGenerate" Content="Generate" HorizontalAlignment="Left" Margin="10,0,0,10" Width="127" Click="btnGenerate_Click" Height="29" VerticalAlignment="Bottom" TabIndex="100"/>
+        <Label x:Name="lblName" Content="Package name:" HorizontalAlignment="Left" Height="32" Margin="13,9,0,0" VerticalAlignment="Top" Width="105"/>
+        <TextBox x:Name="txtName" Height="22" Margin="123,10,5,0" VerticalAlignment="Top" MaxLines="1" TabIndex="5"/>
+        <Label x:Name="lblSourceFolder" Content="Source folder:" HorizontalAlignment="Left" Height="26" Margin="10.2,10,0,0" VerticalAlignment="Top" Width="105" Grid.Column="1"/>
+        <Label x:Name="lblTargetFolder" Content="Target folder:" HorizontalAlignment="Left" Height="27" Margin="10.2,41,0,0" VerticalAlignment="Top" Width="105" Grid.Column="1"/>
+        <Label x:Name="lblTSVersion" Content="TS version:" Height="27" Margin="13,181,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="105"/>
+        <TextBox x:Name="txtTSVersion" Height="22" Margin="123,181,0,0" VerticalAlignment="Top" Text="2099.1" HorizontalAlignment="Left" Width="50" TabIndex="25" TextChanged="txtTSVersion_TextChanged"/>
+        <Label x:Name="lblTSMINVersion" Content="TS MIN version:" Height="25" Margin="13,213,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="105"/>
+        <TextBox x:Name="txtTSMINVersion" Height="22" Margin="123,213,0,0" VerticalAlignment="Top" Text="2016.1" HorizontalAlignment="Left" Width="50" TabIndex="30" TextChanged="txtTSMINVersion_TextChanged"/>
+        <Label x:Name="lblTSMAXVersion" Content="TS MAX version:" Height="27" Margin="13,243,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="105"/>
+        <TextBox x:Name="txtTSMAXVersion" Height="22" Margin="123,243,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" TabIndex="35" TextChanged="txtTSMAXVersion_TextChanged"/>
+        <Label x:Name="lblSaveFolder" Content="Save folder:" HorizontalAlignment="Left" Height="32" Margin="13,120,0,0" VerticalAlignment="Top" Width="105"/>
+        <TextBox x:Name="txtSaveFolder" Height="22" Margin="123,121,48,0" VerticalAlignment="Top" MaxLines="1" TabIndex="12" TextChanged="txtSaveFolder_TextChanged" />
+        <TreeView x:Name="treeView" Margin="10,173,10,10" Grid.Column="1" TabIndex="77"/>
+        <Button x:Name="btnAddFile" Content="Add files" Height="30" Margin="0,103,10,0" VerticalAlignment="Top" Click="btnAddFile_Click" RenderTransformOrigin="0.622,1.133" Grid.Column="1" TabIndex="70" HorizontalAlignment="Right" Width="144"/>
+        <Button x:Name="btnSelectSourceFolder" Content="..." Height="26" Margin="0,10,10,0" VerticalAlignment="Top" Click="btnSelectSourceFolder_Click" HorizontalAlignment="Right" Width="38" Grid.Column="1" TabIndex="60"/>
+        <Button x:Name="btnSelectSaveFolder" Content="..." Height="26" Margin="0,121,5,0" VerticalAlignment="Top" Click="btnSelectSaveFolder_Click" HorizontalAlignment="Right" Width="38" TabIndex="13"/>
+        <Label x:Name="lblFileTree" Content="File tree:" Grid.Column="1" HorizontalAlignment="Left" Height="31" Margin="10,142,0,0" VerticalAlignment="Top" Width="99"/>
+        <ComboBox x:Name="cmbTargetFolder" Height="27" Margin="120,41,10,0" VerticalAlignment="Top" IsEditable="True" Grid.Column="1" TabIndex="65"/>
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Left" Width="5" ScrollViewer.VerticalScrollBarVisibility="Disabled" TabIndex="777"/>
+        <Label x:Name="lblAuthor" Content="Author:" HorizontalAlignment="Left" Height="26" Margin="13,275,0,0" VerticalAlignment="Top" Width="105"/>
+        <TextBox x:Name="txtAuthor" Height="22" Margin="123,275,5,0" VerticalAlignment="Top" MaxLines="1" TabIndex="40"/>
+        <Label x:Name="lblDescription" Content="Description:" HorizontalAlignment="Left" Height="32" Margin="13,41,0,0" VerticalAlignment="Top" Width="105"/>
+        <TextBox x:Name="txtDescription" Margin="123,41,5,0" MaxLines="1" TextWrapping="Wrap" Height="48" VerticalAlignment="Top" TabIndex="10"/>
+        <Label x:Name="lblIconName" Content="Image file:" HorizontalAlignment="Left" Height="26" Margin="13,306,0,0" VerticalAlignment="Top" Width="105"/>
+        <Button x:Name="btnSelectIconFolder" Content="..." Height="26" Margin="0,306,5,0" VerticalAlignment="Top" Click="btnSelectIconFolder_Click" HorizontalAlignment="Right" Width="38" TabIndex="50"/>
+        <Label x:Name="lblPattern" Content="Pattern:" HorizontalAlignment="Left" Height="32" Margin="10,78,0,0" VerticalAlignment="Top" Width="105" Grid.Column="1"/>
+        <TextBox x:Name="txtPattern" Height="22" Margin="120,78,161,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" MaxLines="1" Grid.Column="1" TabIndex="67" Text="*.*"/>
+        <Button x:Name="btnRemoveSelectedFiles" Content="Remove selected target" Height="30" Margin="0,138,10,0" VerticalAlignment="Top" Click="btnRemoveSelectedFiles_Click" RenderTransformOrigin="0.622,1.133" Grid.Column="1" TabIndex="76" HorizontalAlignment="Right" Width="144"/>
+        <CheckBox x:Name="chkRecursive" Content="Recursive" Grid.Column="1" Height="22" Margin="0,78,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="91" IsChecked="True" TabIndex="69"/>
+        <Label x:Name="lblManifestName" Content="Manifest name:" HorizontalAlignment="Left" Height="32" Margin="13,94,0,0" VerticalAlignment="Top" Width="105"/>
+        <TextBox x:Name="txtManifestName" Height="22" Margin="123,94,5,0" VerticalAlignment="Top" MaxLines="1" TabIndex="11" Text="manifest"/>
+        <Label x:Name="lblOutputFolder" Content="Output folder" HorizontalAlignment="Left" Height="32" Margin="13,152,0,0" VerticalAlignment="Top" Width="105"/>
+        <TextBox x:Name="txtOutputFolder" Height="22" Margin="123,152,5,0" VerticalAlignment="Top" MaxLines="1" TabIndex="14" Text=".\"/>
+        <Button x:Name="btnClearAll" Content="Clear all" Height="30" Margin="0,138,159,0" VerticalAlignment="Top" Click="btnClearAll_Click" RenderTransformOrigin="0.622,1.133" Grid.Column="1" TabIndex="75" HorizontalAlignment="Right" Width="93"/>
+        <ComboBox x:Name="cmbSourceFolder" Height="27" Margin="121,10,53,0" VerticalAlignment="Top" IsEditable="True" Grid.Column="1" TabIndex="55"/>
+        <ComboBox x:Name="cmbIcon" Height="27" Margin="123,306,48,0" VerticalAlignment="Top" IsEditable="True" TabIndex="45"/>
+
+    </Grid>
+</Window>
