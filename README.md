@@ -8,7 +8,7 @@ Manifest Generator is used to generate manifest.xml files that are needed for Te
 System requirements
 ===================
 
-NET Framework version:	4.5
+.NET Framework version:	4.5
 
 Installation
 ============
