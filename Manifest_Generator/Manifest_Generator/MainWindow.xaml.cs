@@ -74,7 +74,6 @@ namespace Manifest_Generator
             readDefaultValues();
             cmbSourceFolder.Items.Add(installerFolder);
             cmbIcon.Items.Add(installerFolder);
-            txtTSVersion.BorderBrush = Brushes.LightGreen;
             txtTSMINVersion.BorderBrush = Brushes.LightGreen;
             txtTSMAXVersion.BorderBrush = Brushes.LightGreen;
         }
@@ -243,7 +242,7 @@ namespace Manifest_Generator
             product.Attributes[7].Value = cmbIcon.Text; 
             XmlNode versions = product.ChildNodes[0];
 
-            string version = getVersion(txtTSVersion.Text);
+            string version = "2099.1";
             string minVersion = getVersion(txtTSMINVersion.Text);
             string maxVersion = getVersion(txtTSMAXVersion.Text);
 
@@ -628,20 +627,6 @@ namespace Manifest_Generator
         private void btnClearAll_Click(object sender, RoutedEventArgs e)
         {
             treeView.Items.Clear();
-        }
-
-        private void txtTSVersion_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (getVersion(txtTSVersion.Text) != null)
-            {
-                txtTSVersion.BorderBrush = Brushes.LightGreen;
-                txtTSVersion.Background = Brushes.White;
-            }
-            else
-            {
-                txtTSVersion.BorderBrush = Brushes.Red;
-                txtTSVersion.Background = Brushes.Pink;
-            }
         }
 
         private void txtTSMINVersion_TextChanged(object sender, TextChangedEventArgs e)
