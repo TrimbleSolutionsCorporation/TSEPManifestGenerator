@@ -680,6 +680,11 @@ namespace Manifest_Generator
             {
                 System.Diagnostics.Process.Start("explorer.exe", saveFolder);
             }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show(saveFolder + " does not exist.",
+                        "Manifest Generator", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
