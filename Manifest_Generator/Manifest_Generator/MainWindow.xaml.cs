@@ -242,7 +242,7 @@ namespace Manifest_Generator
             product.Attributes[7].Value = cmbIcon.Text; 
             XmlNode versions = product.ChildNodes[0];
 
-            string version = "2099.1";
+            string version = "2099.1"; // always the maximum as the TS MAX/MIN Versions is used to limit availability
             string minVersion = getVersion(txtTSMINVersion.Text);
             string maxVersion = getVersion(txtTSMAXVersion.Text);
 
@@ -670,6 +670,15 @@ namespace Manifest_Generator
                 {
                     cmbSourceFolder.Text = "";
                 }
+            }
+        }
+
+        private void btnOpenSaveFolder_Click(object sender, RoutedEventArgs e)
+        {
+            string saveFolder = txtSaveFolder.Text;
+            if(Directory.Exists(saveFolder))
+            {
+                System.Diagnostics.Process.Start("explorer.exe", saveFolder);
             }
         }
     }
