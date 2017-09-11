@@ -24,6 +24,5 @@ Future
 ======
 
 Some ideas for improving the tool if needed:
-- option to use always absolute paths
 - warning when changing Save folder
 - empty also file list when Save folder is changed
