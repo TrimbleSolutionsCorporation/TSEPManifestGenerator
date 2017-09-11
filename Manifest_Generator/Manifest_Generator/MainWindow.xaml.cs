@@ -69,13 +69,14 @@ namespace Manifest_Generator
         public MainWindow()
         {
             InitializeComponent();
-            cmbSourceFolder.Text = exePath;
             txtSaveFolder.Text = exePath;
             readDefaultValues();
             cmbSourceFolder.Items.Add(installerFolder);
             cmbIcon.Items.Add(installerFolder);
             txtTSMINVersion.BorderBrush = Brushes.LightGreen;
             txtTSMAXVersion.BorderBrush = Brushes.LightGreen;
+            cmbSourceFolder.Text = txtSaveFolder.Text;
+            cmbSourceFolder.Text = removeCommonPart(cmbSourceFolder.Text, txtSaveFolder.Text); // take the new option "Use absolute paths" for default source folder
         }
         
         // Logic stuff
@@ -474,17 +475,29 @@ namespace Manifest_Generator
 
         private string replaceInstallerFolder(string folder, string saveFolder)
         {
-            return folder.Replace(installerFolder, saveFolder);
+            if (folder == "")
+            {
+                return folder;
+            }
+            else
+            {
+                return System.IO.Path.GetFullPath(folder.Replace(installerFolder, saveFolder));
+            }
         }
 
         private string removeCommonPart(string path, string saveFolder)
-        {
+        {            
+            if ((bool) chkAbsolutePaths.IsChecked)
+            {
+                return path; // don't change the path to be relative to Save folder
+            }
+
             if (path == "")
             {
                 return "";
             }
 
-            path = System.IO.Path.GetFullPath(replaceInstallerFolder(path, saveFolder));
+            path = replaceInstallerFolder(path, saveFolder);
 
             if (path.Contains(saveFolder))
             {
@@ -576,7 +589,7 @@ namespace Manifest_Generator
 
             if (cmbSourceFolder.Text != "")
             {
-                dialog.SelectedPath = System.IO.Path.GetFullPath(replaceInstallerFolder(cmbSourceFolder.Text, txtSaveFolder.Text));
+                dialog.SelectedPath = replaceInstallerFolder(cmbSourceFolder.Text, txtSaveFolder.Text);
             }
 
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
@@ -661,12 +674,12 @@ namespace Manifest_Generator
         {
             if ((cmbIcon.Text != "") && (cmbIcon.Text != ""))
             {
-                if (!Directory.Exists(System.IO.Path.GetFullPath(replaceInstallerFolder(cmbIcon.Text, txtSaveFolder.Text))))
+                if (!Directory.Exists(replaceInstallerFolder(cmbIcon.Text, txtSaveFolder.Text)))
                 {
                     cmbIcon.Text = "";
                 }
 
-                if (!Directory.Exists(System.IO.Path.GetFullPath(replaceInstallerFolder(cmbSourceFolder.Text, txtSaveFolder.Text))))
+                if (!Directory.Exists(replaceInstallerFolder(cmbSourceFolder.Text, txtSaveFolder.Text)))
                 {
                     cmbSourceFolder.Text = "";
                 }
@@ -685,6 +698,18 @@ namespace Manifest_Generator
                 System.Windows.Forms.MessageBox.Show(saveFolder + " does not exist.",
                         "Manifest Generator", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void chkAbsolutePaths_Checked(object sender, RoutedEventArgs e)
+        {
+            cmbIcon.Text = replaceInstallerFolder(cmbIcon.Text, txtSaveFolder.Text);
+            cmbSourceFolder.Text = replaceInstallerFolder(cmbSourceFolder.Text, txtSaveFolder.Text);
+        }
+
+        private void chkAbsolutePaths_Unchecked(object sender, RoutedEventArgs e)
+        {
+            cmbIcon.Text = removeCommonPart(cmbIcon.Text, txtSaveFolder.Text);
+            cmbSourceFolder.Text = removeCommonPart(cmbSourceFolder.Text, txtSaveFolder.Text);
         }
     }
 }
