@@ -37,6 +37,7 @@ namespace Manifest_Generator
         private string exePath = System.IO.Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath);
         private string appName = "Manifest Generator";
         private string installerFolder = "%InstallerFolder%";
+        private string currentSaveFolder = "";
 
         string template =
         #region XMLTemplate
@@ -71,12 +72,13 @@ namespace Manifest_Generator
             InitializeComponent();
             txtSaveFolder.Text = exePath;
             readDefaultValues();
+            currentSaveFolder = txtSaveFolder.Text;
             cmbSourceFolder.Items.Add(installerFolder);
             cmbIcon.Items.Add(installerFolder);
             txtTSMINVersion.BorderBrush = Brushes.LightGreen;
             txtTSMAXVersion.BorderBrush = Brushes.LightGreen;
             cmbSourceFolder.Text = txtSaveFolder.Text;
-            cmbSourceFolder.Text = removeCommonPart(cmbSourceFolder.Text, txtSaveFolder.Text); // take the new option "Use absolute paths" for default source folder
+            cmbSourceFolder.Text = removeCommonPart(cmbSourceFolder.Text, txtSaveFolder.Text); // take "Use absolute paths" into account for default source folder
         }
         
         // Logic stuff
@@ -539,6 +541,24 @@ namespace Manifest_Generator
             }
         }
 
+        private void saveFolderChanged()
+        {
+            if (treeView.HasItems)
+            {
+                System.Windows.MessageBoxResult dialogResult =
+                        System.Windows.MessageBox.Show("Changing save folder will empty the image file and source folder fields.\n" +
+                        "Do you want to empty the file tree as well", appName, MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (dialogResult == System.Windows.MessageBoxResult.Yes)
+                {
+                    treeView.Items.Clear();
+                }
+            }
+
+            cmbIcon.Text = "";
+            cmbSourceFolder.Text = "";
+        }
+
         // UI stuff
         private void btnGenerate_Click(object sender, RoutedEventArgs e)
         {
@@ -604,12 +624,18 @@ namespace Manifest_Generator
         private void btnSelectSaveFolder_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            string oldValue = txtSaveFolder.Text; 
             dialog.SelectedPath = txtSaveFolder.Text; 
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
 
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 txtSaveFolder.Text = dialog.SelectedPath;
+            }
+
+            if(oldValue != txtSaveFolder.Text)
+            {
+                saveFolderChanged();
             }
         }        
 
@@ -672,17 +698,15 @@ namespace Manifest_Generator
 
         private void txtSaveFolder_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if ((cmbIcon.Text != "") && (cmbIcon.Text != ""))
-            {
-                if (!Directory.Exists(replaceInstallerFolder(cmbIcon.Text, txtSaveFolder.Text)))
-                {
-                    cmbIcon.Text = "";
-                }
+            
+        }
 
-                if (!Directory.Exists(replaceInstallerFolder(cmbSourceFolder.Text, txtSaveFolder.Text)))
-                {
-                    cmbSourceFolder.Text = "";
-                }
+        private void txtSaveFolder_LostFocus(object sender, System.EventArgs e)
+        {
+            if (currentSaveFolder != txtSaveFolder.Text)
+            {
+                saveFolderChanged();
+                currentSaveFolder = txtSaveFolder.Text;
             }
         }
 
