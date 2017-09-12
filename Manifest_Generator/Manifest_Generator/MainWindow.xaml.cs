@@ -545,20 +545,20 @@ namespace Manifest_Generator
 
         private void saveFolderChanged()
         {
-            if (! (bool) chkAbsolutePaths.IsChecked)
+            if (treeView.HasItems)
             {
-                if (treeView.HasItems)
+                System.Windows.MessageBoxResult dialogResult =
+                        System.Windows.MessageBox.Show("Changing save folder will empty the image file and source folder fields.\n" +
+                        "Do you want to empty the file tree as well?", appName, MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (dialogResult == System.Windows.MessageBoxResult.Yes)
                 {
-                    System.Windows.MessageBoxResult dialogResult =
-                            System.Windows.MessageBox.Show("Changing save folder will empty the image file and source folder fields.\n" +
-                            "Do you want to empty the file tree as well?", appName, MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                    if (dialogResult == System.Windows.MessageBoxResult.Yes)
-                    {
-                        treeView.Items.Clear();
-                    }
+                    treeView.Items.Clear();
                 }
+            }
 
+            if (!(bool)chkAbsolutePaths.IsChecked)
+            {
                 cmbIcon.Text = "";
                 cmbSourceFolder.Text = "";
             }
