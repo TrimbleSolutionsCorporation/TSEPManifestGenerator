@@ -494,14 +494,16 @@ namespace Manifest_Generator
                 return path; // don't change the path to be relative to Save folder
             }
 
-            if (path == "")
+            if (path == "" || saveFolder == "")
             {
                 return "";
             }
 
-            path = replaceInstallerFolder(path, saveFolder);
-
-            if (path.Contains(saveFolder))
+            // compare only lower case path names 
+            path = replaceInstallerFolder(path, saveFolder).ToLower();
+            saveFolder = saveFolder.ToLower();
+            
+            if (path.Contains(saveFolder)) 
             {
                 // can be replaced with shortcut
                 return path.Replace(saveFolder, installerFolder);
@@ -543,20 +545,23 @@ namespace Manifest_Generator
 
         private void saveFolderChanged()
         {
-            if (treeView.HasItems)
+            if (! (bool) chkAbsolutePaths.IsChecked)
             {
-                System.Windows.MessageBoxResult dialogResult =
-                        System.Windows.MessageBox.Show("Changing save folder will empty the image file and source folder fields.\n" +
-                        "Do you want to empty the file tree as well", appName, MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (dialogResult == System.Windows.MessageBoxResult.Yes)
+                if (treeView.HasItems)
                 {
-                    treeView.Items.Clear();
-                }
-            }
+                    System.Windows.MessageBoxResult dialogResult =
+                            System.Windows.MessageBox.Show("Changing save folder will empty the image file and source folder fields.\n" +
+                            "Do you want to empty the file tree as well?", appName, MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            cmbIcon.Text = "";
-            cmbSourceFolder.Text = "";
+                    if (dialogResult == System.Windows.MessageBoxResult.Yes)
+                    {
+                        treeView.Items.Clear();
+                    }
+                }
+
+                cmbIcon.Text = "";
+                cmbSourceFolder.Text = "";
+            }
         }
 
         // UI stuff
