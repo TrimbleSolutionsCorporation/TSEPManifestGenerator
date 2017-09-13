@@ -388,7 +388,19 @@ namespace Manifest_Generator
                 }
                 else
                 {
-                    return null;
+                    System.Windows.MessageBoxResult dialogResult =
+                            System.Windows.MessageBox.Show("Couldn't find any files. Do you want to add the folder anyway?\n\n",
+                            "Manifest Generator", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if (dialogResult == MessageBoxResult.Yes)
+                    {
+                        parent.Items.Add(treeItem);
+                        return parent;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+
                 }
             }
             catch (Exception ex)
