@@ -24,5 +24,5 @@ Future
 ======
 
 Some ideas for improving the tool if needed:
-- warning when changing Save folder
-- empty also file list when Save folder is changed
+- highlight files over folders in the file tree
+- don't show folders that don't have files matching the pattern in the file list
