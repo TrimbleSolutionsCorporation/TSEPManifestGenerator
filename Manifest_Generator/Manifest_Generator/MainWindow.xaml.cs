@@ -337,7 +337,7 @@ namespace Manifest_Generator
             }
         }
 
-        private TreeViewItem addFolderToTreeView(string folder, string folderShortName, TreeViewItem parent)
+        private TreeViewItem addFolderToTreeView(string folder, string folderShortName, TreeViewItem parent, ref bool filesFound)
         {
             TreeViewItem treeItem = new TreeViewItem();
             bool isRecursive = true;
@@ -373,7 +373,8 @@ namespace Manifest_Generator
                         treeItem.Items.Add(new TreeViewItem() { Header = System.IO.Path.GetFileName(file) });
                     }
 
-                    parent.Items.Add(treeItem);
+                    bool filesFoundRecursively = false;
+                    bool foundTemp = false;
 
                     if (isRecursive)
                     {
@@ -382,9 +383,24 @@ namespace Manifest_Generator
                         // Add subfolders recursively
                         foreach (string subFolder in subFolders)
                         {
-                            addFolderToTreeView(subFolder, System.IO.Path.GetFileName(subFolder), treeItem);
+                            addFolderToTreeView(subFolder, System.IO.Path.GetFileName(subFolder), treeItem, ref filesFoundRecursively);
+                            foundTemp = foundTemp || filesFoundRecursively;
                         }
                     }
+                    // to collapse folders without files, addFolderToTreeView() should return also if files were found. Also the files would end up last in the list.
+
+                    filesFound = foundTemp || files.Count() > 0;
+
+                    if(!filesFound)
+                    {
+                        treeItem.IsExpanded = false;
+                        treeItem.Foreground = Brushes.DarkGray;
+                    }
+                    else
+                    {
+                        treeItem.Foreground = Brushes.Gray;
+                    }
+                    parent.Items.Add(treeItem);
                 }
                 else
                 {
@@ -400,7 +416,6 @@ namespace Manifest_Generator
                     {
                         return null;
                     }
-
                 }
             }
             catch (Exception ex)
@@ -613,7 +628,8 @@ namespace Manifest_Generator
 
         private void btnAddFile_Click(object sender, RoutedEventArgs e)
         {
-            TreeViewItem tree = addFolderToTreeView(cmbSourceFolder.Text, System.IO.Path.GetFileName(cmbSourceFolder.Text.Trim()), null);
+            bool filesFound = false;
+            TreeViewItem tree = addFolderToTreeView(cmbSourceFolder.Text, System.IO.Path.GetFileName(cmbSourceFolder.Text.Trim()), null, ref filesFound);
             if (tree != null)
             {
                 treeView.Items.Add(tree);
