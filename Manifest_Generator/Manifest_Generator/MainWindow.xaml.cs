@@ -387,7 +387,6 @@ namespace Manifest_Generator
                             foundTemp = foundTemp || filesFoundRecursively;
                         }
                     }
-                    // to collapse folders without files, addFolderToTreeView() should return also if files were found. Also the files would end up last in the list.
 
                     filesFound = foundTemp || files.Count() > 0;
 
