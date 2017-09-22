@@ -81,7 +81,8 @@ namespace Manifest_Generator
             cmbSourceFolder.Text = removeCommonPart(cmbSourceFolder.Text, txtSaveFolder.Text); // take "Use absolute paths" into account for default source folder
         }
         
-        // Logic stuff
+// Logic stuff
+
         private void readDefaultValues()
         {
             string path = exePath + @"\Defaults.ini";
@@ -234,22 +235,22 @@ namespace Manifest_Generator
             return null;
         }
 
-        private bool handleProduct(XmlNode product)
+        private bool handleProduct(XmlNode product, string name, string author, string description, string icon, string TSMinVersion, string TSMaxVersion)
         {
-            product.Attributes[0].Value = getSafeId(txtName.Text);
+            product.Attributes[0].Value = getSafeId(name);
             product.Attributes[1].Value = getGuid().ToString();
             // 2 == version, 3 == language: defaults are fine
-            product.Attributes[4].Value = txtName.Text;
-            product.Attributes[5].Value = txtAuthor.Text;
-            product.Attributes[6].Value = txtDescription.Text;
-            product.Attributes[7].Value = cmbIcon.Text; 
+            product.Attributes[4].Value = name;
+            product.Attributes[5].Value = author;
+            product.Attributes[6].Value = description;
+            product.Attributes[7].Value = icon; 
             XmlNode versions = product.ChildNodes[0];
 
             string version = "2099.1"; // always the maximum as the TS MAX/MIN Versions is used to limit availability
-            string minVersion = getVersion(txtTSMINVersion.Text);
-            string maxVersion = getVersion(txtTSMAXVersion.Text);
+            string minVersion = getVersion(TSMinVersion);
+            string maxVersion = getVersion(TSMaxVersion);
 
-            if ((version != null) && (minVersion != null) && ((maxVersion != null) || txtTSMAXVersion.Text.Trim() == ""))
+            if ((version != null) && (minVersion != null) && ((maxVersion != null) || TSMaxVersion.Trim() == ""))
             {
                 versions.ChildNodes[0].Attributes[0].Value = version;
                 versions.ChildNodes[1].Attributes[0].Value = minVersion;
@@ -271,12 +272,13 @@ namespace Manifest_Generator
             }
         }
 
-        private bool handleFilesAndFolders(XmlNode source, XmlNode target, XmlNode component)
+        private bool handleFilesAndFolders(XmlNode source, XmlNode target, XmlNode component, 
+                                            System.Windows.Controls.TreeView treeView, string outputFolder)
         {
             int id = 0;
             component.Attributes[1].Value = getGuid().ToString();
 
-            string outputFolder = "%TEPDEFINITIONFILEFOLDER%\\" + txtOutputFolder.Text.Trim();
+            outputFolder = "%TEPDEFINITIONFILEFOLDER%\\" + outputFolder.Trim();
             source.ChildNodes[0].Attributes[1].Value = outputFolder;
 
             foreach(TreeViewItem item in treeView.Items)
@@ -320,14 +322,17 @@ namespace Manifest_Generator
             return true;
         }
 
-        private XmlDocument generateXML()
+        private XmlDocument generateXML(System.Windows.Controls.TreeView treeView, string name, string author, 
+                                        string description, string icon, string TSminVersion, string TSmaxVersion, 
+                                        string outputFolder)
         {
             XmlDocument manifest = new XmlDocument();
             manifest.LoadXml(template);
             
             XmlNode root = manifest.DocumentElement;
 
-            if (handleProduct(root.ChildNodes[0]) && handleFilesAndFolders(root.ChildNodes[1], root.ChildNodes[2], root.ChildNodes[3]))
+            if (handleProduct(root.ChildNodes[0], name, author, description, icon, TSminVersion, TSmaxVersion) 
+                && handleFilesAndFolders(root.ChildNodes[1], root.ChildNodes[2], root.ChildNodes[3], treeView, outputFolder))
             {            
                 return manifest;
             }
@@ -337,7 +342,7 @@ namespace Manifest_Generator
             }
         }
 
-        private TreeViewItem addFolderToTreeView(string folder, string folderShortName, TreeViewItem parent, ref bool filesFound)
+        private TreeViewItem addFolderToTreeView(string folder, string folderShortName, string pattern, TreeViewItem parent, ref bool filesFound)
         {
             TreeViewItem treeItem = new TreeViewItem();
             bool isRecursive = true;
@@ -353,7 +358,7 @@ namespace Manifest_Generator
                 isRecursive = (bool) chkRecursive.IsChecked;
                 string recursive = (isRecursive) ? "yes" : "no";
                 // The first branch contains full path and the pattern
-                treeItem.Header = folder + " | " + txtPattern.Text + " | " + recursive;
+                treeItem.Header = folder + " | " + pattern + " | " + recursive;
             }
             // Subfolder branches contain only subfolder name and pattern, not full path
             else
@@ -363,58 +368,15 @@ namespace Manifest_Generator
 
             try
             {
-                string[] files = getFiles(ref folder);
+                string[] files = getFiles(ref folder, pattern);
 
                 if (files != null)
                 {
-                    // Add files from current folder to tree view
-                    foreach (string file in files)
-                    {
-                        treeItem.Items.Add(new TreeViewItem() { Header = System.IO.Path.GetFileName(file) });
-                    }
-
-                    bool filesFoundRecursively = false;
-                    bool foundTemp = false;
-
-                    if (isRecursive)
-                    {
-                        string[] subFolders = System.IO.Directory.GetDirectories(folder);
-
-                        // Add subfolders recursively
-                        foreach (string subFolder in subFolders)
-                        {
-                            addFolderToTreeView(subFolder, System.IO.Path.GetFileName(subFolder), treeItem, ref filesFoundRecursively);
-                            foundTemp = foundTemp || filesFoundRecursively;
-                        }
-                    }
-
-                    filesFound = foundTemp || files.Count() > 0;
-
-                    if(!filesFound)
-                    {
-                        treeItem.IsExpanded = false;
-                        treeItem.Foreground = Brushes.DarkGray;
-                    }
-                    else
-                    {
-                        treeItem.Foreground = Brushes.Gray;
-                    }
-                    parent.Items.Add(treeItem);
+                    filesFound = processFoundFiles(folder, parent, filesFound, treeItem, isRecursive, files, pattern);
                 }
                 else
                 {
-                    System.Windows.MessageBoxResult dialogResult =
-                            System.Windows.MessageBox.Show("Couldn't find any files. Do you want to add the folder anyway?\n\n",
-                            "Manifest Generator", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    if (dialogResult == MessageBoxResult.Yes)
-                    {
-                        parent.Items.Add(treeItem);
-                        return parent;
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return filesNotFoundMessage(parent, treeItem);
                 }
             }
             catch (Exception ex)
@@ -427,12 +389,67 @@ namespace Manifest_Generator
             return parent;
         }
 
-        private string[] getFiles(ref string folder)
+        private bool processFoundFiles(string folder, TreeViewItem parent, bool filesFound, TreeViewItem treeItem, bool isRecursive, string[] files, string pattern)
+        {
+            // Add files from current folder to tree view
+            foreach (string file in files)
+            {
+                treeItem.Items.Add(new TreeViewItem() { Header = System.IO.Path.GetFileName(file) });
+            }
+
+            bool filesFoundRecursively = false;
+            bool foundTemp = false;
+
+            if (isRecursive)
+            {
+                string[] subFolders = System.IO.Directory.GetDirectories(folder);
+
+                // Add subfolders recursively
+                foreach (string subFolder in subFolders)
+                {
+                    addFolderToTreeView(subFolder, System.IO.Path.GetFileName(subFolder), pattern, treeItem, ref filesFoundRecursively);
+                    foundTemp = foundTemp || filesFoundRecursively;
+                }
+            }
+
+            filesFound = foundTemp || files.Count() > 0;
+
+            if (!filesFound)
+            {
+                treeItem.IsExpanded = false;
+                treeItem.Foreground = Brushes.DarkGray;
+            }
+            else
+            {
+                treeItem.Foreground = Brushes.Gray;
+            }
+            parent.Items.Add(treeItem);
+
+            return filesFound;
+        }
+
+        private static TreeViewItem filesNotFoundMessage(TreeViewItem parent, TreeViewItem treeItem)
+        {
+            System.Windows.MessageBoxResult dialogResult =
+                    System.Windows.MessageBox.Show("Couldn't find any files. Do you want to add the folder anyway?\n\n",
+                    "Manifest Generator", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (dialogResult == MessageBoxResult.Yes)
+            {
+                parent.Items.Add(treeItem);
+                return parent;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private string[] getFiles(ref string folder, string pattern)
         {
             try
             {
                 folder = replaceInstallerFolder(folder, txtSaveFolder.Text.Trim());
-                string[] files = System.IO.Directory.GetFiles(folder, txtPattern.Text);
+                string[] files = System.IO.Directory.GetFiles(folder, pattern);
                 return files;
             }
             catch (Exception ex)
@@ -569,6 +586,8 @@ namespace Manifest_Generator
             }
         }
 
+// UI stuff
+
         private void saveFolderChanged()
         {
             if (treeView.HasItems)
@@ -590,10 +609,11 @@ namespace Manifest_Generator
             }
         }
 
-        // UI stuff
         private void btnGenerate_Click(object sender, RoutedEventArgs e)
         {
-            XmlDocument document = generateXML();
+            XmlDocument document = generateXML(treeView, txtName.Text, txtAuthor.Text, 
+                                            txtDescription.Text, cmbIcon.Text, txtTSMINVersion.Text,
+                                            txtTSMAXVersion.Text, txtOutputFolder.Text.Trim());
             string manifestName = getSafeId(txtManifestName.Text.Trim()) + ".xml";
             string saveLocation = txtSaveFolder.Text + "\\";
             bool result = false;
@@ -628,7 +648,7 @@ namespace Manifest_Generator
         private void btnAddFile_Click(object sender, RoutedEventArgs e)
         {
             bool filesFound = false;
-            TreeViewItem tree = addFolderToTreeView(cmbSourceFolder.Text, System.IO.Path.GetFileName(cmbSourceFolder.Text.Trim()), null, ref filesFound);
+            TreeViewItem tree = addFolderToTreeView(cmbSourceFolder.Text, System.IO.Path.GetFileName(cmbSourceFolder.Text.Trim()), txtPattern.Text, null, ref filesFound);
             if (tree != null)
             {
                 treeView.Items.Add(tree);
