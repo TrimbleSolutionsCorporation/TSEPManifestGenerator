@@ -38,13 +38,13 @@ namespace Manifest_Generator
         private string appName = "Manifest Generator";
         private string installerFolder = "%InstallerFolder%";
         private string currentSaveFolder = "";
-        private string commonEnv = "%commonEnvFolder";
+        private string commonEnv = "%commonEnvFolder%";
 
         string template =
         #region XMLTemplate
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
             "<TEP Version=\"2.0\">" +
-                "<Product Id=\"\" UpgradeCode=\"\" Version=\"1.0\" Language=\"1033\" Name=\"\" Manufacturer=\"\"  Description= \"\" IconPath=\"\"> " +
+                "<Product Id=\"\" UpgradeCode=\"\" Version=\"1.0\" Language=\"1033\" Name=\"\" Manufacturer=\"\"  Description= \"\" IconPath=\"\"  Type=\"Extension\"> " +
                     "<TeklaVersions>" +
                         "<TeklaVersion Name=\"\"/>" +
                         "<MinTeklaVersion Name=\"\"/>" +
