@@ -38,6 +38,7 @@ namespace Manifest_Generator
         private string appName = "Manifest Generator";
         private string installerFolder = "%InstallerFolder%";
         private string currentSaveFolder = "";
+        private string commonEnv = "%commonEnvFolder";
 
         string template =
         #region XMLTemplate
@@ -75,6 +76,7 @@ namespace Manifest_Generator
             currentSaveFolder = txtSaveFolder.Text;
             cmbSourceFolder.Items.Add(installerFolder);
             cmbIcon.Items.Add(installerFolder);
+            cmbTargetFolder.Items.Add(commonEnv);
             txtTSMINVersion.BorderBrush = Brushes.LightGreen;
             txtTSMAXVersion.BorderBrush = Brushes.LightGreen;
             cmbSourceFolder.Text = txtSaveFolder.Text;
